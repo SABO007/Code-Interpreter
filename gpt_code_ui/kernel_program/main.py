@@ -18,12 +18,12 @@ from flask_cors import CORS  # Import the CORS library
 from dotenv import load_dotenv
 load_dotenv('.env')
 
-import gpt_code_ui.kernel_program.kernel_manager as kernel_manager
-import gpt_code_ui.kernel_program.config as config
-import gpt_code_ui.kernel_program.utils as utils
+import kernel_manager
+import config as config
+import utils
 
 
-APP_PORT = int(os.environ.get("API_PORT", 5010))
+APP_PORT = int(os.environ.get("API_PORT", 8080))
 
 # Get global logger
 logger = config.get_logger()

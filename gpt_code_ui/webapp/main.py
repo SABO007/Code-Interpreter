@@ -1,4 +1,4 @@
-# The GPT web UI as a template based Flask app
+import sys
 import os
 import requests
 import asyncio
@@ -15,17 +15,21 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify, send_from_directory, Response
 from dotenv import load_dotenv
 
-from gpt_code_ui.kernel_program.main import APP_PORT as KERNEL_APP_PORT
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'kernel_program')))
+from kernel_program.main import APP_PORT as KERNEL_APP_PORT
+
 
 load_dotenv('.env')
 
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 openai.api_version = os.environ.get("OPENAI_API_VERSION")
 openai.log = os.getenv("OPENAI_API_LOGLEVEL")
 OPENAI_EXTRA_HEADERS = json.loads(os.environ.get("OPENAI_EXTRA_HEADERS", "{}"))
 
-openai.api_type='azure'
-openai.api_base='https://openaiautomationteam.openai.azure.com/'
-openai.api_version = "2023-03-15-preview"
+openai.api_type= os.environ.get("OPENAI_API_TYPE", "open_ai")
+openai.api_base= os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+openai.api_version = os.environ.get("OPENAI_API_VERSION")
+
 
 if openai.api_type == "open_ai":
     AVAILABLE_MODELS = json.loads(os.environ.get("OPENAI_MODELS", '''[{"displayName": "GPT-3.5", "name": "gpt-3.5-turbo"}, {"displayName": "GPT-4", "name": "gpt-4"}]'''))
@@ -127,25 +131,17 @@ async def get_code(user_prompt, user_openai_key=None, model="gpt-3.5-turbo"):
     
     Teacher mode: if the code modifies or produces a file, at the end of the code block insert a print statement that prints a link to it as HTML string: <a href='/download?file=INSERT_FILENAME_HERE'>Download file</a>. Replace INSERT_FILENAME_HERE with the actual filename."""
 
-    if user_openai_key:
-        openai.api_key = user_openai_key
+
 
     arguments = dict(
-        engine='DIR_GPT4',  
+        model='gpt-3.5-turbo',
         temperature=0.7,
-        headers=OPENAI_EXTRA_HEADERS,
+        headers=os.environ.get("OPENAI_EXTRA_HEADERS"),
         messages=[
-            # {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ]
     )
 
-    if openai.api_type == 'open_ai':
-        arguments["model"] = model
-    elif openai.api_type == 'azure':
-        arguments["deployment_id"] = model
-    else:
-        return None, f"Error: Invalid OPENAI_PROVIDER: {openai.api_type}", 500
 
     try:
         result_GPT = openai.ChatCompletion.create(**arguments)

@@ -17,11 +17,7 @@ export default function Sidebar(props: {
     <>
       <div className="sidebar">
         <div className="logo">
-        <a href='https://www.evalueserve.com/in-en/'> EVALUESERVE </a>
-
-        <div className='website'>
-            <a href='https://dir.evalueserve.com/dir/home'>Digital Intelligence & Robotics(DIR)</a>
-        </div>
+          <a href='https://github.com/SABO007'> <b>Code Interpreter</b> </a>
         </div>
         <div className="settings">
             <label className="header">Settings</label>
